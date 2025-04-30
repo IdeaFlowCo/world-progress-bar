@@ -10,6 +10,28 @@ interface IndicatorChartProps {
 export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps) => {
   const color = indicator.color || "#06B6D4";
   
+  // Determine if this is a percentage-based indicator
+  const isPercentage = indicator.unit === "%" || indicator.unit === "percent";
+  
+  // Set domain max value - cap at 100 if it's a percentage
+  const getYAxisDomain = () => {
+    // For percentage values, cap at 100
+    if (isPercentage) {
+      return [0, 100];
+    }
+    
+    // For other values, calculate a reasonable upper bound
+    // Find the maximum value in historical data
+    const maxHistorical = Math.max(...indicator.historical.map(item => item.value));
+    const targetValue = indicator.target || 0;
+    
+    // Use whichever is greater: the max historical value or the target value
+    const maxValue = Math.max(maxHistorical, targetValue);
+    
+    // Add a 10% buffer to the maximum for better visualization
+    return [0, Math.ceil(maxValue * 1.1)];
+  };
+  
   const renderChart = () => {
     switch (indicator.chartType) {
       case "line":
@@ -26,6 +48,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
               axisLine={{ stroke: "#334155" }}
               tickLine={{ stroke: "#334155" }}
               width={30}
+              domain={getYAxisDomain()}
             />
             <Tooltip 
               contentStyle={{ 
@@ -34,6 +57,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
                 borderRadius: "6px",
                 fontSize: "12px"
               }} 
+              formatter={(value: number) => [`${value}${isPercentage ? '%' : ''}`, indicator.unit]}
             />
             <Line 
               type="monotone" 
@@ -60,6 +84,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
               axisLine={{ stroke: "#334155" }}
               tickLine={{ stroke: "#334155" }}
               width={30}
+              domain={getYAxisDomain()}
             />
             <Tooltip
               contentStyle={{ 
@@ -68,6 +93,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
                 borderRadius: "6px",
                 fontSize: "12px"
               }}
+              formatter={(value: number) => [`${value}${isPercentage ? '%' : ''}`, indicator.unit]}
             />
             <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -87,6 +113,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
               axisLine={{ stroke: "#334155" }}
               tickLine={{ stroke: "#334155" }}
               width={30}
+              domain={getYAxisDomain()}
             />
             <Tooltip
               contentStyle={{ 
@@ -95,6 +122,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
                 borderRadius: "6px",
                 fontSize: "12px"
               }}
+              formatter={(value: number) => [`${value}${isPercentage ? '%' : ''}`, indicator.unit]}
             />
             <Area 
               type="monotone" 
@@ -110,7 +138,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
         // For pie charts, we'll compare current value to target or max possible
         const pieData = [
           { name: "Current", value: indicator.value },
-          { name: "Remaining", value: (indicator.target || 100) - indicator.value }
+          { name: "Remaining", value: (indicator.target || (isPercentage ? 100 : indicator.value * 2)) - indicator.value }
         ];
         
         return (
@@ -134,6 +162,7 @@ export const IndicatorChart = ({ indicator, height = 150 }: IndicatorChartProps)
                 borderRadius: "6px",
                 fontSize: "12px"
               }}
+              formatter={(value: number) => [`${value}${isPercentage ? '%' : ''}`, indicator.unit]}
             />
           </PieChart>
         );
