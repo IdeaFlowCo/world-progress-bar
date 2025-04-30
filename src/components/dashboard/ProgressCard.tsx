@@ -39,7 +39,7 @@ export const ProgressCard = ({ indicator, onUpdate, onDelete }: ProgressCardProp
 
   return (
     <>
-      <Card className={`glass-morphism overflow-hidden transition-all duration-300 ${showChart ? 'h-[400px]' : 'h-[280px]'}`}>
+      <Card className={`glass-morphism overflow-hidden transition-all duration-300 ${showChart ? 'h-[420px]' : 'h-[280px]'}`}>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <div>
@@ -98,8 +98,8 @@ export const ProgressCard = ({ indicator, onUpdate, onDelete }: ProgressCardProp
           )}
           
           {showChart && (
-            <div className="mt-4 h-[160px]">
-              <IndicatorChart indicator={indicator} />
+            <div className="mt-4 h-[180px]">
+              <IndicatorChart indicator={indicator} height={180} />
             </div>
           )}
         </CardContent>
