@@ -18,23 +18,60 @@ export const ProgressCard = ({ indicator, onUpdate, onDelete }: ProgressCardProp
   const [showChart, setShowChart] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const progressPercentage = indicator.target
-    ? Math.min(Math.round((indicator.value / indicator.target) * 100), 100)
-    : 0;
+  // Calculate progress percentage based on the indicator's target
+  const calculateProgressPercentage = () => {
+    if (!indicator.target) return null;
+    
+    // For indicators where lower is better (like poverty rate, child mortality)
+    const isLowerBetter = indicator.name.toLowerCase().includes("poverty") || 
+                         indicator.name.toLowerCase().includes("mortality");
+    
+    if (isLowerBetter) {
+      // Calculate inverse percentage (how much we've reduced from maximum)
+      const startValue = Math.max(indicator.historical[0]?.value || 100, indicator.target * 3);
+      const progress = startValue - indicator.value;
+      const total = startValue - indicator.target;
+      return Math.min(Math.round((progress / total) * 100), 100);
+    } else {
+      // For indicators where higher is better (default)
+      return Math.min(Math.round((indicator.value / indicator.target) * 100), 100);
+    }
+  };
 
-  // Determine the color based on progress (for progress indicators with targets)
+  const progressPercentage = calculateProgressPercentage();
+
+  // Determine the color based on progress
   const getProgressColor = () => {
-    if (!indicator.target) return "bg-dashboard-accent1";
+    if (progressPercentage === null) return "bg-dashboard-accent1";
     if (progressPercentage < 30) return "bg-red-500";
     if (progressPercentage < 70) return "bg-amber-500";
     return "bg-emerald-500";
   };
 
   const getProgressColorClass = () => {
-    if (!indicator.target) return "text-dashboard-accent1";
+    if (progressPercentage === null) return "text-dashboard-accent1";
     if (progressPercentage < 30) return "text-red-500";
     if (progressPercentage < 70) return "text-amber-500";
     return "text-emerald-500";
+  };
+
+  // Determine if this indicator is measuring something where lower values are better
+  const isLowerBetter = () => {
+    return indicator.name.toLowerCase().includes("poverty") || 
+           indicator.name.toLowerCase().includes("mortality");
+  };
+
+  // Get appropriate display for target value
+  const getTargetDisplay = () => {
+    if (!indicator.target) return null;
+    
+    return (
+      <div className="text-right">
+        <span className="text-sm text-slate-400">
+          Target: {isLowerBetter() ? "≤" : "≥"} {indicator.target} {indicator.unit}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -81,13 +118,10 @@ export const ProgressCard = ({ indicator, onUpdate, onDelete }: ProgressCardProp
               </span>
               <span className="text-sm ml-1 text-slate-300">{indicator.unit}</span>
             </div>
-            {indicator.target && (
-              <div className="text-right">
-                <span className="text-sm text-slate-400">Target: {indicator.target} {indicator.unit}</span>
-              </div>
-            )}
+            {getTargetDisplay()}
           </div>
 
+          {/* Only show progress bar for indicators that have targets */}
           {indicator.target && (
             <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden mt-2">
               <div 
