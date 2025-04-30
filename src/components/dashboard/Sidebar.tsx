@@ -63,7 +63,7 @@ export const Sidebar = ({
           {!isCollapsed && (
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-dashboard-accent1" />
-              <h1 className="font-bold text-xl text-white">Progress<span className="text-dashboard-accent1">Nexus</span></h1>
+              <h1 className="font-bold text-xl text-white">World<span className="text-dashboard-accent1">Progress Bar</span></h1>
             </div>
           )}
           

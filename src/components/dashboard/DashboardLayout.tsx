@@ -147,7 +147,7 @@ export const DashboardLayout = () => {
         } p-8`}
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">World Progress Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white">World Progress Bar</h1>
           <p className="text-slate-400 mt-2">
             Track and analyze key global development indicators
           </p>
