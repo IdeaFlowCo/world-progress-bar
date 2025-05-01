@@ -61,10 +61,20 @@ export function useDashboard() {
                 toast.error("Failed to load indicator data.");
                 // Keep fetchedIndicators as empty array if API fails completely
             } finally {
-                // Combine fetched indicators (even if empty on error) with static ones
+                // Get IDs of fetched indicators to avoid duplicates
+                const fetchedIds = new Set(
+                    fetchedIndicators.map((ind) => ind.id)
+                );
+
+                // Filter static indicators to remove any that were already fetched
+                const uniqueStaticIndicators = staticIndicators.filter(
+                    (ind) => !fetchedIds.has(ind.id)
+                );
+
+                // Combine fetched indicators with the filtered static ones
                 const combinedIndicators = [
                     ...fetchedIndicators,
-                    ...staticIndicators,
+                    ...uniqueStaticIndicators,
                 ];
                 setIndicators(combinedIndicators);
                 setIsLoading(false); // Set loading false after everything is done

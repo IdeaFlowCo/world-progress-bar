@@ -66,17 +66,17 @@ const indicatorConfigMap: Record<string, IndicatorConfig> = {
         chartType: "area",
         color: "#22C55E",
     },
-    "SP.DYN.LE00.IN": {
-        // Life expectancy at birth, total (years)
-        id: "life-expectancy", // Matches one of the life expectancy IDs
-        name: "Global Life Expectancy",
-        description: "Average number of years a newborn is expected to live.",
-        category: "Health",
-        target: 85, // Keep original target
-        unit: "years",
-        chartType: "line",
-        color: "#EC4899",
-    },
+    // "SP.DYN.LE00.IN": {
+    //     // Life expectancy at birth, total (years)
+    //     id: "life-expectancy", // Matches one of the life expectancy IDs
+    //     name: "Global Life Expectancy",
+    //     description: "Average number of years a newborn is expected to live.",
+    //     category: "Health",
+    //     target: 85, // Keep original target
+    //     unit: "years",
+    //     chartType: "line",
+    //     color: "#EC4899",
+    // },
     "SI.POV.DDAY": {
         // Poverty headcount ratio at $2.15 a day (2017 PPP) (% of population)
         id: "extreme-poverty",
@@ -220,6 +220,25 @@ export async function fetchWorldBankIndicator(
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const rawData = await response.json();
+
+        // Check for World Bank API error message first
+        if (
+            Array.isArray(rawData) &&
+            rawData.length === 1 &&
+            rawData[0]?.message &&
+            Array.isArray(rawData[0].message) &&
+            rawData[0].message.length > 0 && // Ensure message array is not empty
+            rawData[0].message[0]?.id === "175" // Check for the specific error ID
+        ) {
+            console.error(
+                `World Bank API error for ${indicatorCode}: ${
+                    rawData[0].message[0]?.value ||
+                    "Indicator not found or invalid format."
+                }`,
+                rawData
+            );
+            return null; // Return null as the indicator data is unavailable
+        }
 
         // Validate the expected structure [metadata, dataPoints[]]
         if (
