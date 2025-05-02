@@ -112,18 +112,6 @@ const indicatorConfigMap: Record<string, IndicatorConfig> = {
         chartType: "line",
         color: "#EF4444",
     },
-    "EN.ATM.CO2E.KT": {
-        // CO2 emissions (kt)
-        id: "co2-emissions",
-        name: "Global CO2 Emissions",
-        description: "Annual global carbon dioxide emissions.", // Simplified description
-        category: "Environment",
-        target: 20, // Target is in billion tons
-        unit: "billion tons", // Dashboard unit
-        chartType: "bar",
-        color: "#64748B",
-        valueTransform: (kt) => kt / 1000000, // Convert kilotons to billion tons
-    },
     "SP.POP.TOTL": {
         // Population, total
         id: "global-population",
@@ -183,8 +171,21 @@ const indicatorConfigMap: Record<string, IndicatorConfig> = {
         chartType: "line",
         color: "#FF9800",
     },
+    "NY.GDP.PCAP.KD": {
+        // GDP per capita, PPP (constant 2017 international $)
+        id: "gdp-per-capita-ppp",
+        name: "GDP per capita (PPP, 2017$)",
+        description:
+            "Gross Domestic Product per person, adjusted for purchasing power parity (constant 2017 international dollars).",
+        category: "Economy",
+        target: 50000, // Example target for high development
+        unit: "$",
+        chartType: "line",
+        color: "#607D8B",
+    },
     // Note: Indicators like 'scientific-publications', 'world-energy-production',
-    // 'global-temperature-change', 'top-supercomputer-flops', 'ecological-footprint'
+    // 'global-temperature-change', 'top-supercomputer-flops', 'ecological-footprint',
+    // 'solar-cost-per-watt', 'hdi', 'gender-equality', 'democracy-index', 'happiness-index'
     // are not directly available or easily mapped in the World Bank API and are omitted here.
     // The second 'life-expectancy' with ambitious target uses the same WB code SP.DYN.LE00.IN.
 };

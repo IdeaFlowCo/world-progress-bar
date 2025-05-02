@@ -48,7 +48,8 @@ export const ProgressCard = ({
             indicator.id === "global-temperature-change" ||
             indicator.id === "global-aqi-pm25" ||
             indicator.id === "ecological-footprint" ||
-            indicator.id === "global-obesity-overweight"
+            indicator.id === "global-obesity-overweight" ||
+            indicator.id === "gender-inequality-index" // Added GII
         );
     };
 
@@ -209,7 +210,17 @@ export const ProgressCard = ({
     let displayValue: string;
     let displayUnit: string = indicator.unit; // Default to indicator unit
 
-    if (indicator.unit === "%") {
+    if (indicator.id === "global-gdp") {
+        // Format as $X.Y Trillion (using SI prefix T)
+        const formattedSI = formatNumberWithSI(indicator.value, "USD"); // Use 'USD' unit hint
+        const valueParts = formattedSI.split(/\s+/); // e.g., ["90.1", "T"]
+        displayValue = `$${valueParts[0]}`; // Add $ prefix
+        displayUnit = valueParts.length > 1 ? valueParts[1] : ""; // Keep SI prefix (T for Trillion)
+    } else if (indicator.id === "solar-cost-per-watt") {
+        // Format as $X.YZ / Watt
+        displayValue = `$${indicator.value.toFixed(2)}`; // Add $ prefix and format to 2 decimals
+        displayUnit = "/ Watt"; // Set unit explicitly
+    } else if (indicator.unit === "%") {
         displayValue = indicator.value.toFixed(1); // Format percentage to 1 decimal place
         displayUnit = "%"; // Ensure unit is just '%'
     } else if (indicator.unit === "Watts" || indicator.unit === "FLOPS") {
@@ -218,6 +229,10 @@ export const ProgressCard = ({
         displayValue = valueParts[0];
         displayUnit =
             valueParts.length > 1 ? valueParts.slice(1).join(" ") : "";
+    } else if (indicator.id === "gender-inequality-index") {
+        // Format GII to 3 decimal places
+        displayValue = indicator.value.toFixed(3);
+        displayUnit = indicator.unit; // Keep the original unit ("Index Score")
     } else {
         // For other units, use SI formatting for better precision and readability
         const formattedSI = formatNumberWithSI(indicator.value, indicator.unit);
@@ -227,12 +242,17 @@ export const ProgressCard = ({
             valueParts.length > 1 ? valueParts.slice(1).join(" ") : "";
     }
 
+    // Conditionally shorten the description for Global GDP when chart is hidden
+    let displayDescription = indicator.description;
+    if (indicator.id === "global-gdp" && !showChart) {
+        displayDescription =
+            "Gross domestic product (GDP) is a measure of the total value added from the production of goods and services globally each year.";
+    }
+
     return (
         <>
             <Card
-                className={`glass-morphism overflow-hidden transition-all duration-300 ${
-                    showChart ? "h-[400px]" : "h-[280px]"
-                }`}
+                className={`glass-morphism overflow-hidden transition-all duration-300`}
             >
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
@@ -280,7 +300,7 @@ export const ProgressCard = ({
                 </CardHeader>
                 <CardContent className="pb-3">
                     <p className="text-sm text-slate-300 mb-4">
-                        {indicator.description}
+                        {displayDescription}
                     </p>
 
                     <div className="flex items-end justify-between mb-2">
