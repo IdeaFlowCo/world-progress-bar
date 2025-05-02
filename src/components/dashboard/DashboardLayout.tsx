@@ -48,10 +48,14 @@ export const DashboardLayout = () => {
         }
 
         switch (view) {
-            case "cards":
+            case "cards": {
+                // Filter out indicators not suitable for card view (like GHI which is map-only)
+                const cardIndicators = indicators.filter(
+                    (ind) => ind.id !== "global-happiness-index"
+                );
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {indicators.map((indicator) => (
+                        {cardIndicators.map((indicator) => (
                             <ProgressCard
                                 key={indicator.id}
                                 indicator={indicator}
@@ -61,8 +65,8 @@ export const DashboardLayout = () => {
                         ))}
                     </div>
                 );
-
-            case "charts":
+            }
+            case "charts": {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {indicators.map((indicator) => (
@@ -86,8 +90,8 @@ export const DashboardLayout = () => {
                         ))}
                     </div>
                 );
-
-            case "table":
+            }
+            case "table": {
                 return (
                     <div className="glass-morphism rounded-lg overflow-hidden">
                         <Table>
@@ -142,15 +146,11 @@ export const DashboardLayout = () => {
                         </Table>
                     </div>
                 );
-
-            case "map":
-                // Replace placeholder with the MapView component
-                return (
-                    <div className="h-[calc(100vh-220px)]">
-                        <MapView />
-                    </div>
-                );
-
+            }
+            case "map": {
+                // Remove height constraint, let MapView control its height
+                return <MapView />;
+            }
             default:
                 return null;
         }

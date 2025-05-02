@@ -1,5 +1,5 @@
 // src/components/dashboard/MapView.tsx
-import { useState, useEffect } from "react"; // Added Fragment
+import { useState, useEffect } from "react";
 import {
     ComposableMap,
     Geographies,
@@ -8,19 +8,18 @@ import {
 } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
 import { hdiData2022 } from "@/data/hdiData";
-// Removed HoverCard/Tooltip imports
+import { ghiData2024 } from "@/data/ghiData";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
-// Basic interface for the expected GeoJSON structure
+// --- Interfaces ---
 interface Geometry {
     type: string;
     arcs: number[][][] | number[];
 }
-
-// Updated Properties interface based on console logs
 interface Properties {
     name: string;
 }
-
 interface TopologyObject {
     type:
         | "Point"
@@ -31,27 +30,21 @@ interface TopologyObject {
         | "MultiPolygon"
         | "GeometryCollection";
     properties: Properties;
-    geometries?: Geometry[]; // For GeometryCollection
-    arcs?: number[][][] | number[]; // For Polygon, MultiPolygon etc.
+    geometries?: Geometry[];
+    arcs?: number[][][] | number[];
     id?: string | number;
 }
-
 interface GeoJsonData {
     type: "Topology";
-    objects: {
-        [key: string]: TopologyObject; // e.g., countries, land
-    };
+    objects: { [key: string]: TopologyObject };
     arcs: number[][][];
 }
 
-// GeoJSON URL for world map data
+// --- Constants ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-// Mapping from GeoJSON country names to ISO A3 codes (Partial map based on logs & HDI data)
-// Needs to be expanded for full coverage if necessary
 const countryNameToCodeMap: { [name: string]: string } = {
     Tanzania: "TZA",
-    "W. Sahara": "ESH", // Note: ESH might not be in hdiData2022
+    "W. Sahara": "ESH",
     Canada: "CAN",
     "United States of America": "USA",
     Kazakhstan: "KAZ",
@@ -69,10 +62,10 @@ const countryNameToCodeMap: { [name: string]: string } = {
     "Dominican Rep.": "DOM",
     Russia: "RUS",
     Bahamas: "BHS",
-    "Falkland Is.": "FLK", // Note: FLK might not be in hdiData2022
+    "Falkland Is.": "FLK",
     Norway: "NOR",
-    Greenland: "GRL", // Note: GRL might not be in hdiData2022
-    "Fr. S. Antarctic Lands": "ATF", // Note: ATF might not be in hdiData2022
+    Greenland: "GRL",
+    "Fr. S. Antarctic Lands": "ATF",
     "Timor-Leste": "TLS",
     "South Africa": "ZAF",
     Lesotho: "LSO",
@@ -94,7 +87,7 @@ const countryNameToCodeMap: { [name: string]: string } = {
     Suriname: "SUR",
     France: "FRA",
     Ecuador: "ECU",
-    "Puerto Rico": "PRI", // Note: PRI might not be in hdiData2022
+    "Puerto Rico": "PRI",
     Jamaica: "JAM",
     Cuba: "CUB",
     Zimbabwe: "ZWE",
@@ -122,7 +115,7 @@ const countryNameToCodeMap: { [name: string]: string } = {
     Zambia: "ZMB",
     Malawi: "MWI",
     Mozambique: "MOZ",
-    eSwatini: "SWZ", // Map uses eSwatini, data uses Eswatini (SWZ)
+    eSwatini: "SWZ",
     Angola: "AGO",
     Burundi: "BDI",
     Israel: "ISR",
@@ -144,7 +137,7 @@ const countryNameToCodeMap: { [name: string]: string } = {
     Laos: "LAO",
     Myanmar: "MMR",
     Vietnam: "VNM",
-    "North Korea": "PRK", // Note: PRK might not be in hdiData2022
+    "North Korea": "PRK",
     "South Korea": "KOR",
     Mongolia: "MNG",
     India: "IND",
@@ -183,13 +176,13 @@ const countryNameToCodeMap: { [name: string]: string } = {
     Portugal: "PRT",
     Spain: "ESP",
     Ireland: "IRL",
-    "New Caledonia": "NCL", // Note: NCL might not be in hdiData2022
+    "New Caledonia": "NCL",
     "Solomon Is.": "SLB",
     "New Zealand": "NZL",
     Australia: "AUS",
     "Sri Lanka": "LKA",
     China: "CHN",
-    Taiwan: "TWN", // Note: TWN might not be in hdiData2022
+    Taiwan: "TWN",
     Italy: "ITA",
     Denmark: "DNK",
     "United Kingdom": "GBR",
@@ -208,149 +201,134 @@ const countryNameToCodeMap: { [name: string]: string } = {
     Paraguay: "PRY",
     Yemen: "YEM",
     "Saudi Arabia": "SAU",
-    // "Antarctica": "ATA", // No data
-    "N. Cyprus": "-99", // Special code for N. Cyprus if needed
+    "N. Cyprus": "-99",
     Cyprus: "CYP",
     Morocco: "MAR",
     Egypt: "EGY",
     Libya: "LBY",
     Ethiopia: "ETH",
     Djibouti: "DJI",
-    Somaliland: "-99", // Special code for Somaliland if needed
+    Somaliland: "-99",
     Uganda: "UGA",
     Rwanda: "RWA",
     "Bosnia and Herz.": "BIH",
-    Macedonia: "MKD", // Map uses Macedonia, data uses North Macedonia (MKD)
+    Macedonia: "MKD",
     Serbia: "SRB",
     Montenegro: "MNE",
-    Kosovo: "-99", // Special code for Kosovo if needed
+    Kosovo: "-99",
     "Trinidad and Tobago": "TTO",
     "S. Sudan": "SSD",
 };
 
-// Updated cool color scale for HDI values
-const coolColorScale = scaleLinear<string>()
-    .domain([0.3, 0.6, 0.8, 0.95]) // Domain based on HDI range
-    .range(["#eff3ff", "#bdd7e7", "#6baed6", "#2171b5"]); // Cool color range (light blue to dark blue)
-
-// Legend items based on the scale
-const legendItems = [
-    { color: coolColorScale(0.3), label: "< 0.6" },
-    { color: coolColorScale(0.6), label: "0.6 - 0.8" },
-    { color: coolColorScale(0.8), label: "0.8 - 0.95" },
-    { color: coolColorScale(0.95), label: "> 0.95" },
+// --- HDI Configuration ---
+const hdiColorScale = scaleLinear<string>()
+    .domain([0.3, 0.6, 0.8, 0.95])
+    .range(["#eff3ff", "#bdd7e7", "#6baed6", "#2171b5"]);
+const hdiLegendItems = [
+    { color: hdiColorScale(0.3), label: "< 0.6" },
+    { color: hdiColorScale(0.6), label: "0.6 - 0.8" },
+    { color: hdiColorScale(0.8), label: "0.8 - 0.95" },
+    { color: hdiColorScale(0.95), label: "> 0.95" },
     { color: "#666", label: "No data" },
 ];
 
+// --- GHI Configuration ---
+const ghiColorScale = scaleLinear<string>()
+    .domain([2, 4, 6, 7.5])
+    .range(["#fee08b", "#fdae61", "#f46d43", "#d73027"].reverse());
+const ghiLegendItems = [
+    { color: ghiColorScale(2), label: "< 4" },
+    { color: ghiColorScale(4), label: "4 - 6" },
+    { color: ghiColorScale(6), label: "6 - 7.5" },
+    { color: ghiColorScale(7.5), label: "> 7.5" },
+    { color: "#666", label: "No data" },
+];
+
+// --- Map Data Configuration ---
+const mapIndexData = {
+    hdi: {
+        data: hdiData2022,
+        scale: hdiColorScale,
+        legend: hdiLegendItems,
+        title: "Human Development Index (HDI) 2022",
+        unit: "Index",
+        label: "HDI",
+    },
+    ghi: {
+        data: ghiData2024,
+        scale: ghiColorScale,
+        legend: ghiLegendItems,
+        title: "Global Happiness Index (GHI) 2024",
+        unit: "Score",
+        label: "GHI",
+    },
+};
+type SelectedIndex = keyof typeof mapIndexData;
+
+// --- Component ---
 export const MapView = () => {
-    // Re-added tooltipContent state
     const [tooltipContent, setTooltipContent] = useState("");
+    const [tooltipPosition, setTooltipPosition] = useState<{
+        x: number;
+        y: number;
+    }>({ x: 0, y: 0 });
     const [geoData, setGeoData] = useState<GeoJsonData | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState<SelectedIndex>("hdi");
+
+    const currentMapData = mapIndexData[selectedIndex];
 
     useEffect(() => {
-        // Fetch the GeoJSON data
         fetch(geoUrl)
             .then((res) => res.json())
-            .then((data) => setGeoData(data))
+            .then(setGeoData)
             .catch((err) => console.error("Error fetching GeoJSON:", err));
     }, []);
 
     if (!geoData) {
-        return <div>Loading map data...</div>; // Or a loading spinner
+        return <div>Loading map data...</div>;
     }
 
     return (
-        // Removed TooltipProvider/HoverCard wrappers
-        <div className="w-full h-full border border-slate-700 rounded-lg overflow-hidden flex flex-col relative">
-            {/* Title and Description Area */}
-            <div className="p-4 border-b border-slate-700 bg-slate-900/50">
-                <h3 className="text-lg font-semibold text-slate-100">
-                    Global Index Map
-                </h3>
-                <p className="text-sm text-slate-400 mt-1">
-                    Currently displaying: Human Development Index (HDI) 2022
-                    {/* Hint for future indices */}
-                    {/* <span className="ml-2 text-xs">(More indices coming soon)</span> */}
-                </p>
-            </div>
-            {/* Map container takes remaining space */}
-            <div className="flex-grow relative">
-                {" "}
-                {/* Ensure map container is relative for absolute tooltip */}
-                <ComposableMap
-                    projectionConfig={{
-                        rotate: [-10, 0, 0],
-                    }}
-                    style={{ width: "100%", height: "100%" }}
+        // Main container: flex column, relative for tooltip positioning
+        <div className="w-full h-[70vh] border border-slate-700 rounded-lg overflow-hidden flex flex-col relative">
+            {/* Header: Title and Selector - Prevent shrinking */}
+            <div className="p-4 border-b border-slate-700 bg-slate-900/50 flex justify-between items-center flex-shrink-0">
+                <div>
+                    <h3 className="text-lg font-semibold text-slate-100">
+                        Global Index Map
+                    </h3>
+                    <p className="text-sm text-slate-400 mt-1">
+                        Currently displaying: {currentMapData.title}
+                    </p>
+                </div>
+                <RadioGroup
+                    defaultValue={selectedIndex}
+                    onValueChange={(value) =>
+                        setSelectedIndex(value as SelectedIndex)
+                    }
+                    className="flex space-x-4"
                 >
-                    {/* Increased initial zoom level */}
-                    <ZoomableGroup center={[0, 20]} zoom={1.5}>
-                        <Geographies geography={geoData}>
-                            {({ geographies }) =>
-                                geographies.map((geo) => {
-                                    const countryName = geo.properties.name;
-                                    const countryCode =
-                                        countryNameToCodeMap[countryName];
-                                    const hdiValue = countryCode
-                                        ? hdiData2022[countryCode]
-                                        : undefined;
-
-                                    const fillColor = hdiValue
-                                        ? coolColorScale(hdiValue) // Use cool color scale
-                                        : "#666";
-
-                                    const currentTooltipText = `${
-                                        countryName || "Unknown"
-                                    }: ${
-                                        hdiValue
-                                            ? hdiValue.toFixed(3)
-                                            : "No data"
-                                    }`;
-
-                                    return (
-                                        // Use Geography's events
-                                        <Geography
-                                            key={geo.rsmKey}
-                                            geography={geo}
-                                            onMouseEnter={() => {
-                                                setTooltipContent(
-                                                    currentTooltipText
-                                                );
-                                            }}
-                                            onMouseLeave={() => {
-                                                setTooltipContent("");
-                                            }}
-                                            style={{
-                                                default: {
-                                                    fill: fillColor,
-                                                    outline: "none",
-                                                    stroke: "#FFF",
-                                                    strokeWidth: 0.2,
-                                                },
-                                                hover: {
-                                                    fill: fillColor, // Keep fill color on hover
-                                                    outline: "none",
-                                                    stroke: "#FFF", // Make border slightly thicker/brighter on hover
-                                                    strokeWidth: 0.6,
-                                                    cursor: "pointer",
-                                                },
-                                                pressed: {
-                                                    fill: fillColor,
-                                                    outline: "none",
-                                                },
-                                            }}
-                                        />
-                                    );
-                                })
-                            }
-                        </Geographies>
-                    </ZoomableGroup>
-                </ComposableMap>
+                    {Object.keys(mapIndexData).map((key) => (
+                        <div key={key} className="flex items-center space-x-2">
+                            <RadioGroupItem
+                                value={key}
+                                id={`map-radio-${key}`}
+                            />
+                            <Label
+                                htmlFor={`map-radio-${key}`}
+                                className="text-sm text-slate-300 cursor-pointer"
+                            >
+                                {mapIndexData[key as SelectedIndex].label}
+                            </Label>
+                        </div>
+                    ))}
+                </RadioGroup>
             </div>
-            {/* Legend */}
-            <div className="bg-slate-800/50 backdrop-blur-sm p-2 text-xs text-slate-300 flex items-center justify-center space-x-4">
-                <span>HDI:</span>
-                {legendItems.map((item) => (
+
+            {/* Legend: Moved below header, prevent shrinking */}
+            <div className="bg-slate-800/50 backdrop-blur-sm p-2 text-xs text-slate-300 flex items-center justify-center space-x-4 flex-shrink-0">
+                <span>{currentMapData.label}:</span>
+                {currentMapData.legend.map((item) => (
                     <div
                         key={item.label}
                         className="flex items-center space-x-1"
@@ -363,12 +341,93 @@ export const MapView = () => {
                     </div>
                 ))}
             </div>
-            {/* Conditionally render styled tooltip div (positioned relative to map container) */}
-            {tooltipContent && (
-                <div className="absolute bottom-4 left-4 z-50 overflow-hidden rounded-md border border-slate-600 bg-slate-800/80 backdrop-blur-sm px-3 py-1.5 text-sm text-slate-100 shadow-md animate-in fade-in-0 zoom-in-95">
-                    {tooltipContent}
+
+            {/* Map Container: Grow to fill space, relative for tooltip */}
+            <div className="flex-grow relative">
+                {/* Wrapper div to ensure map takes full height/width of container */}
+                <div
+                    className="w-full h-full"
+                    onMouseMove={(e) =>
+                        setTooltipPosition({ x: e.clientX, y: e.clientY })
+                    }
+                >
+                    <ComposableMap
+                        projectionConfig={{ rotate: [-10, 0, 0] }}
+                        style={{ width: "100%", height: "100%" }}
+                    >
+                        <ZoomableGroup center={[0, 0]} zoom={1.0}>
+                            <Geographies geography={geoData}>
+                                {({ geographies }) =>
+                                    geographies.map((geo) => {
+                                        const countryName = geo.properties.name;
+                                        const countryCode =
+                                            countryNameToCodeMap[countryName];
+                                        const value = countryCode
+                                            ? currentMapData.data[countryCode]
+                                            : undefined;
+                                        const fillColor = value
+                                            ? currentMapData.scale(value)
+                                            : "#666";
+                                        const currentTooltipText = `${
+                                            countryName || "Unknown"
+                                        }: ${
+                                            value ? value.toFixed(3) : "No data"
+                                        } (${currentMapData.unit})`;
+
+                                        return (
+                                            <Geography
+                                                key={geo.rsmKey}
+                                                geography={geo}
+                                                onMouseEnter={() => {
+                                                    setTooltipContent(
+                                                        currentTooltipText
+                                                    );
+                                                }}
+                                                onMouseLeave={() => {
+                                                    setTooltipContent("");
+                                                }}
+                                                style={{
+                                                    default: {
+                                                        fill: fillColor,
+                                                        outline: "none",
+                                                        stroke: "#FFF",
+                                                        strokeWidth: 0.2,
+                                                    },
+                                                    hover: {
+                                                        fill: fillColor,
+                                                        outline: "none",
+                                                        stroke: "#FFF",
+                                                        strokeWidth: 0.6,
+                                                        cursor: "pointer",
+                                                    },
+                                                    pressed: {
+                                                        fill: fillColor,
+                                                        outline: "none",
+                                                    },
+                                                }}
+                                            />
+                                        );
+                                    })
+                                }
+                            </Geographies>
+                        </ZoomableGroup>
+                    </ComposableMap>
                 </div>
-            )}
+                {/* Tooltip: Follow mouse cursor */}
+                {tooltipContent && (
+                    <div
+                        className="z-50 overflow-hidden rounded-md border border-slate-600 bg-slate-800/80 backdrop-blur-sm px-3 py-1.5 text-sm text-slate-100 shadow-md animate-in fade-in-0 zoom-in-95"
+                        style={{
+                            position: "fixed",
+                            top: tooltipPosition.y + 10,
+                            left: tooltipPosition.x + 10,
+                            pointerEvents: "none",
+                        }}
+                    >
+                        {tooltipContent}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

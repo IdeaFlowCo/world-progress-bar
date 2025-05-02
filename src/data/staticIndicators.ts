@@ -1,5 +1,6 @@
 // src/data/staticIndicators.ts
 import { ProgressIndicator } from "../types/dashboard";
+import { ghiData2024 } from "./ghiData"; // Import GHI data
 
 // Constants from original staticIndicators.ts
 const costPerFlopHistorical: { year: number; value: number }[] = [
@@ -424,6 +425,28 @@ const genderInequalityIndexIndicator: ProgressIndicator = {
     },
     historical: genderInequalityIndexHistorical,
     color: "#E91E63", // Pink
+};
+
+// Define the Global Happiness Index indicator
+const globalHappinessIndicator: ProgressIndicator = {
+    id: "global-happiness-index",
+    name: "Global Happiness Index (2024)",
+    description:
+        "World Happiness Report score (Ladder score) indicating subjective well-being.",
+    category: "Social",
+    value: 7.736, // Value for Finland (highest) as a placeholder 'current' value
+    target: 8.0, // Example target score
+    unit: "Score",
+    chartType: "bar", // Placeholder chart type, primarily for map view
+    source: {
+        name: "World Happiness Report 2024 (User Provided)",
+        url: "https://worldhappiness.report/", // General URL
+        lastUpdated: "2025-05-01",
+    },
+    // No historical line data provided, map data is in ghiData.ts
+    mapData: ghiData2024, // Link to the map data
+    color: "#FFCA28", // Amber/Gold color
+    historical: [], // Add empty historical array to satisfy type
 };
 
 // Combined list of all indicators
@@ -1114,4 +1137,7 @@ export const staticIndicators: ProgressIndicator[] = [
 
     // Gender Inequality Index Data (Added)
     genderInequalityIndexIndicator,
+
+    // Global Happiness Index (Added)
+    globalHappinessIndicator,
 ];

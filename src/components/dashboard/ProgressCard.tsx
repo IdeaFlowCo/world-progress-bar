@@ -210,7 +210,11 @@ export const ProgressCard = ({
     let displayValue: string;
     let displayUnit: string = indicator.unit; // Default to indicator unit
 
-    if (indicator.id === "global-gdp") {
+    if (indicator.id === "global-population") {
+        // Format population with commas
+        displayValue = indicator.value.toLocaleString();
+        displayUnit = indicator.unit; // Keep original unit (e.g., "people")
+    } else if (indicator.id === "global-gdp") {
         // Format as $X.Y Trillion (using SI prefix T)
         const formattedSI = formatNumberWithSI(indicator.value, "USD"); // Use 'USD' unit hint
         const valueParts = formattedSI.split(/\s+/); // e.g., ["90.1", "T"]
@@ -222,6 +226,10 @@ export const ProgressCard = ({
         displayUnit = "/ Watt"; // Set unit explicitly
     } else if (indicator.unit === "%") {
         displayValue = indicator.value.toFixed(1); // Format percentage to 1 decimal place
+        displayUnit = "%"; // Ensure unit is just '%'
+    } else if (indicator.id === "global-literacy") {
+        // Format literacy rate to 2 decimal places
+        displayValue = indicator.value.toFixed(2);
         displayUnit = "%"; // Ensure unit is just '%'
     } else if (indicator.unit === "Watts" || indicator.unit === "FLOPS") {
         const formattedSI = formatNumberWithSI(indicator.value, indicator.unit);
