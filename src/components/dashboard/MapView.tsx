@@ -313,13 +313,39 @@ export const MapView = () => {
                         <p className="text-sm text-slate-400 whitespace-nowrap">
                             Currently displaying: {currentMapData.title}
                         </p>
-                        <Input
-                            type="text"
-                            placeholder="Search..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-slate-700/60 border-slate-600 placeholder-slate-400 text-slate-200 h-7 px-2 py-1 text-xs rounded-md w-44 focus:ring-sky-500 focus:border-sky-500"
-                        />
+                        {/* Wrapper for Input and Clear Button */}
+                        <div className="relative flex items-center">
+                            <Input
+                                type="text"
+                                placeholder="Search..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                // Added pr-7 for padding to accommodate the clear button
+                                className="bg-slate-700/60 border-slate-600 placeholder-slate-400 text-slate-200 h-7 px-2 py-1 pr-7 text-xs rounded-md w-44 focus:ring-sky-500 focus:border-sky-500"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-1 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1 focus:outline-none"
+                                    aria-label="Clear search"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={1.5}
+                                        stroke="currentColor"
+                                        className="w-3.5 h-3.5"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
