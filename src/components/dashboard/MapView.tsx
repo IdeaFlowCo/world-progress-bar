@@ -11,6 +11,7 @@ import { hdiData2022 } from "@/data/hdiData";
 import { ghiData2024 } from "@/data/ghiData";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 // --- Interfaces ---
 interface Geometry {
@@ -283,6 +284,7 @@ export const MapView = () => {
     }>({ x: 0, y: 0 });
     const [geoData, setGeoData] = useState<GeoJsonData | null>(null);
     const [selectedIndex, setSelectedIndex] = useState<SelectedIndex>("hdi");
+    const [searchQuery, setSearchQuery] = useState("");
 
     const currentMapData: MapDisplayData = mapIndexData[selectedIndex];
 
@@ -300,16 +302,28 @@ export const MapView = () => {
     return (
         // Main container: flex column, relative for tooltip positioning
         <div className="w-full h-[70vh] border border-slate-700 rounded-lg overflow-hidden flex flex-col relative">
-            {/* Header: Title and Selector - Prevent shrinking */}
+            {/* Header: Title, Subtitle, Search, and Selector - Prevent shrinking */}
             <div className="p-4 border-b border-slate-700 bg-slate-900/50 flex justify-between items-center flex-shrink-0">
+                {/* Left section: Title, Subtitle, and Search */}
                 <div>
                     <h3 className="text-lg font-semibold text-slate-100">
                         Global Index Map
                     </h3>
-                    <p className="text-sm text-slate-400 mt-1">
-                        Currently displaying: {currentMapData.title}
-                    </p>
+                    <div className="flex items-center mt-1 space-x-3">
+                        <p className="text-sm text-slate-400 whitespace-nowrap">
+                            Currently displaying: {currentMapData.title}
+                        </p>
+                        <Input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="bg-slate-700/60 border-slate-600 placeholder-slate-400 text-slate-200 h-7 px-2 py-1 text-xs rounded-md w-44 focus:ring-sky-500 focus:border-sky-500"
+                        />
+                    </div>
                 </div>
+
+                {/* Right section: RadioGroup */}
                 <RadioGroup
                     defaultValue={selectedIndex}
                     onValueChange={(value) =>
@@ -383,6 +397,15 @@ export const MapView = () => {
                                             value ? value.toFixed(3) : "No data"
                                         } (${currentMapData.unit})`;
 
+                                        const trimmedSearchQuery = searchQuery
+                                            .trim()
+                                            .toLowerCase();
+                                        const isHighlighted =
+                                            trimmedSearchQuery !== "" &&
+                                            countryName
+                                                ?.toLowerCase()
+                                                .includes(trimmedSearchQuery);
+
                                         return (
                                             <Geography
                                                 key={geo.rsmKey}
@@ -398,19 +421,36 @@ export const MapView = () => {
                                                 style={{
                                                     default: {
                                                         fill: fillColor,
+                                                        stroke: isHighlighted
+                                                            ? "#FFD700"
+                                                            : "#FFF",
+                                                        strokeWidth:
+                                                            isHighlighted
+                                                                ? 0.8
+                                                                : 0.2,
                                                         outline: "none",
-                                                        stroke: "#FFF",
-                                                        strokeWidth: 0.2,
                                                     },
                                                     hover: {
                                                         fill: fillColor,
+                                                        stroke: isHighlighted
+                                                            ? "#FFD700"
+                                                            : "#FFF",
+                                                        strokeWidth:
+                                                            isHighlighted
+                                                                ? 1.2
+                                                                : 0.6,
                                                         outline: "none",
-                                                        stroke: "#FFF",
-                                                        strokeWidth: 0.6,
                                                         cursor: "pointer",
                                                     },
                                                     pressed: {
                                                         fill: fillColor,
+                                                        stroke: isHighlighted
+                                                            ? "#FFD700"
+                                                            : "#FFF",
+                                                        strokeWidth:
+                                                            isHighlighted
+                                                                ? 0.8
+                                                                : 0.2,
                                                         outline: "none",
                                                     },
                                                 }}
