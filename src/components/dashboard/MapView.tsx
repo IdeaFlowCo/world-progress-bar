@@ -6,7 +6,7 @@ import {
     Geography,
     ZoomableGroup,
 } from "react-simple-maps";
-import { scaleLinear } from "d3-scale";
+import { scaleLinear, ScaleLinear } from "d3-scale";
 import { hdiData2022 } from "@/data/hdiData";
 import { ghiData2024 } from "@/data/ghiData";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -221,7 +221,7 @@ const countryNameToCodeMap: { [name: string]: string } = {
 };
 
 // --- HDI Configuration ---
-const hdiColorScale = scaleLinear<string>()
+const hdiColorScale: ScaleLinear<number, string, never> = scaleLinear<string>()
     .domain([0.3, 0.6, 0.8, 0.95])
     .range(["#eff3ff", "#bdd7e7", "#6baed6", "#2171b5"]);
 const hdiLegendItems = [
@@ -233,7 +233,7 @@ const hdiLegendItems = [
 ];
 
 // --- GHI Configuration ---
-const ghiColorScale = scaleLinear<string>()
+const ghiColorScale: ScaleLinear<number, string, never> = scaleLinear<string>()
     .domain([2, 4, 6, 7.5])
     .range(["#fee08b", "#fdae61", "#f46d43", "#d73027"].reverse());
 const ghiLegendItems = [
@@ -245,6 +245,15 @@ const ghiLegendItems = [
 ];
 
 // --- Map Data Configuration ---
+interface MapDisplayData {
+    data: Record<string, number>;
+    scale: ScaleLinear<number, string, never>;
+    legend: Array<{ color: string; label: string }>;
+    title: string;
+    unit: string;
+    label: string;
+}
+
 const mapIndexData = {
     hdi: {
         data: hdiData2022,
@@ -275,7 +284,7 @@ export const MapView = () => {
     const [geoData, setGeoData] = useState<GeoJsonData | null>(null);
     const [selectedIndex, setSelectedIndex] = useState<SelectedIndex>("hdi");
 
-    const currentMapData = mapIndexData[selectedIndex];
+    const currentMapData: MapDisplayData = mapIndexData[selectedIndex];
 
     useEffect(() => {
         fetch(geoUrl)
