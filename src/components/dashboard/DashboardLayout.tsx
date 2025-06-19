@@ -30,22 +30,34 @@ export const DashboardLayout = () => {
     } = useDashboard();
 
     // Check if mobile on mount and set sidebar accordingly
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+        // Initialize based on viewport width
+        return window.innerWidth < 768;
+    });
     const [showAllCharts, setShowAllCharts] = useState(false);
+    const [hasUserToggledSidebar, setHasUserToggledSidebar] = useState(false);
     
     useEffect(() => {
-        // Check if mobile device (viewport width < 768px)
-        const checkMobile = () => {
-            setSidebarCollapsed(window.innerWidth < 768);
+        // Only auto-adjust on significant size changes (tablet to mobile, etc)
+        let resizeTimeout: ReturnType<typeof setTimeout>;
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const isMobile = window.innerWidth < 768;
+                
+                // Only auto-adjust if user hasn't manually toggled
+                if (!hasUserToggledSidebar) {
+                    setSidebarCollapsed(isMobile);
+                }
+            }, 150); // Debounce resize events
         };
         
-        // Check on mount
-        checkMobile();
-        
-        // Optional: Add resize listener to handle orientation changes
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(resizeTimeout);
+        };
+    }, [hasUserToggledSidebar]);
 
     const renderContent = () => {
         if (indicators.length === 0) {
@@ -182,7 +194,10 @@ export const DashboardLayout = () => {
                 currentCategory={categoryFilter}
                 currentView={view}
                 isCollapsed={sidebarCollapsed}
-                onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+                onToggleCollapse={() => {
+                    setSidebarCollapsed(!sidebarCollapsed);
+                    setHasUserToggledSidebar(true);
+                }}
             />
 
             <main
