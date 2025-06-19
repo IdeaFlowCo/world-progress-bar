@@ -272,7 +272,7 @@ export const ProgressCard = ({
     return (
         <>
             <Card
-                className={`glass-morphism overflow-hidden transition-all duration-300`}
+                className={`glass-morphism overflow-hidden transition-all duration-300 flex flex-col h-full`}
             >
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
@@ -318,50 +318,56 @@ export const ProgressCard = ({
                         </DropdownMenu>
                     </div>
                 </CardHeader>
-                <CardContent className="pb-3">
-                    <p className="text-sm text-slate-300 mb-4">
-                        {displayDescription}
-                    </p>
-
-                    <div className="flex items-end justify-between mb-2">
-                        <div>
-                            <span
-                                className={`text-3xl font-bold ${getProgressColorClass()}`}
-                            >
-                                {displayValue}
-                            </span>
-                            {displayUnit && (
-                                <span className="text-sm ml-1 text-slate-300">
-                                    {displayUnit}
-                                </span>
-                            )}
-                        </div>
-                        {getTargetDisplay()}
+                <CardContent className="pb-3 flex-1 flex flex-col">
+                    {/* Description section - grows to fill available space */}
+                    <div className="flex-1">
+                        <p className="text-sm text-slate-300 mb-4">
+                            {displayDescription}
+                        </p>
                     </div>
 
-                    {/* Only show progress bar for indicators that have targets */}
-                    {indicator.target !== undefined &&
-                        indicator.target !== null && (
-                            <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden mt-2">
-                                <div
-                                    className={`h-full ${getProgressColor()} transition-all duration-1000`}
-                                    style={{
-                                        // If lower is better AND progress is poor (red), show full bar
-                                        width:
-                                            isLowerBetter() &&
-                                            getProgressColor() === "bg-red-500"
-                                                ? "100%"
-                                                : `${progressPercentage}%`,
-                                    }}
-                                />
+                    {/* Bottom section - fixed at bottom */}
+                    <div className="mt-auto">
+                        <div className="flex items-end justify-between mb-2">
+                            <div>
+                                <span
+                                    className={`text-3xl font-bold ${getProgressColorClass()}`}
+                                >
+                                    {displayValue}
+                                </span>
+                                {displayUnit && (
+                                    <span className="text-sm ml-1 text-slate-300">
+                                        {displayUnit}
+                                    </span>
+                                )}
+                            </div>
+                            {getTargetDisplay()}
+                        </div>
+
+                        {/* Only show progress bar for indicators that have targets */}
+                        {indicator.target !== undefined &&
+                            indicator.target !== null && (
+                                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden mt-2">
+                                    <div
+                                        className={`h-full ${getProgressColor()} transition-all duration-1000`}
+                                        style={{
+                                            // If lower is better AND progress is poor (red), show full bar
+                                            width:
+                                                isLowerBetter() &&
+                                                getProgressColor() === "bg-red-500"
+                                                    ? "100%"
+                                                    : `${progressPercentage}%`,
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                        {shouldShowChart && (
+                            <div className="mt-4 h-[160px]">
+                                <IndicatorChart indicator={indicator} />
                             </div>
                         )}
-
-                    {shouldShowChart && (
-                        <div className="mt-4 h-[160px]">
-                            <IndicatorChart indicator={indicator} />
-                        </div>
-                    )}
+                    </div>
                 </CardContent>
                 <CardFooter className="pt-0 text-xs text-slate-400 flex justify-between">
                     <div>Last update: {indicator.source.lastUpdated}</div>
