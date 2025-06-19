@@ -23,9 +23,7 @@ export function formatNumberWithSI(
             return `${parseFloat(value).toString()} million people`;
         }
         // Format with commas, no decimals for < 1 million
-        return `${num.toLocaleString(undefined, {
-            maximumFractionDigits: 0,
-        })} people`;
+        return `${formatNumberWithCommas(num, { precision: 0 })} people`;
     }
 
     // --- Special Handling for very small currency values ---
@@ -77,21 +75,35 @@ export function formatNumberWithSI(
         return `${num.toFixed(fixedPrecision)} ${unit}`;
     }
 
-    // For numbers >= 1 or exactly 0, format with specified precision
-    // Remove trailing zeros and decimal point if it's a whole number after rounding
-    const fixedValue = num.toFixed(precision);
-    const formattedBaseValue = parseFloat(fixedValue).toString();
-    return `${formattedBaseValue} ${unit}`;
+    // For numbers >= 1 or exactly 0, format with specified precision and commas
+    return `${formatNumberWithCommas(num, { precision })} ${unit}`;
 }
 
 export function formatValueWithDisplayPrecision(
     value: number,
-    precision?: number
+    precision?: number,
+    useCommas: boolean = true
 ): string {
-    if (typeof precision === "number") {
-        return value.toFixed(precision);
+    // Use formatNumberWithCommas for consistent formatting
+    return formatNumberWithCommas(value, { 
+        precision, 
+        useThousandsSeparator: useCommas 
+    });
+}
+
+export function formatNumberWithCommas(
+    value: number,
+    options?: {
+        precision?: number;
+        useThousandsSeparator?: boolean;
     }
-    // Default formatting if precision is not specified
-    // For whole numbers, show no decimals. For floats, default to 2 decimals.
-    return Number.isInteger(value) ? String(value) : value.toFixed(2);
+): string {
+    const { precision, useThousandsSeparator = true } = options || {};
+    
+    // Use toLocaleString for proper formatting with commas
+    return value.toLocaleString(undefined, {
+        minimumFractionDigits: precision,
+        maximumFractionDigits: precision !== undefined ? precision : (Number.isInteger(value) ? 0 : 2),
+        useGrouping: useThousandsSeparator
+    });
 }
