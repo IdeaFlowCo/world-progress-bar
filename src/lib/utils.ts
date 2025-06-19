@@ -75,8 +75,16 @@ export function formatNumberWithSI(
         return `${num.toFixed(fixedPrecision)} ${unit}`;
     }
 
-    // For numbers >= 1 or exactly 0, format with specified precision and commas
-    return `${formatNumberWithCommas(num, { precision })} ${unit}`;
+    // For numbers >= 1 or exactly 0, format with specified precision
+    // Only add commas for numbers in a reasonable range (not too large)
+    if (Math.abs(num) >= 10000 && Math.abs(num) < 1e15) {
+        return `${formatNumberWithCommas(num, { precision })} ${unit}`;
+    }
+    
+    // For smaller numbers or very large numbers, use standard formatting
+    const fixedValue = num.toFixed(precision);
+    const formattedBaseValue = parseFloat(fixedValue).toString();
+    return `${formattedBaseValue} ${unit}`;
 }
 
 export function formatValueWithDisplayPrecision(
@@ -84,7 +92,22 @@ export function formatValueWithDisplayPrecision(
     precision?: number,
     useCommas: boolean = true
 ): string {
-    // Use formatNumberWithCommas for consistent formatting
+    // Only use commas for "normal" numbers (not too small, not too large)
+    // Skip commas for very small numbers that might need scientific notation
+    if (Math.abs(value) < 0.01 && value !== 0) {
+        // For very small numbers, use standard precision without commas
+        if (typeof precision === "number") {
+            return value.toFixed(precision);
+        }
+        return value.toString();
+    }
+    
+    // Skip commas for very large numbers that might be better in scientific notation
+    if (Math.abs(value) >= 1e15) {
+        return value.toExponential(precision !== undefined ? precision : 2);
+    }
+    
+    // For "normal" range numbers, use comma formatting
     return formatNumberWithCommas(value, { 
         precision, 
         useThousandsSeparator: useCommas 
