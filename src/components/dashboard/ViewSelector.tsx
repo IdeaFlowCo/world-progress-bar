@@ -1,8 +1,7 @@
 
-import { LayoutDashboard, BarChart, List, MapPin, Eye, EyeOff } from "lucide-react";
+import { LayoutDashboard, BarChart, List, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { DashboardView } from "@/types/dashboard";
 
 interface ViewSelectorProps {
@@ -48,16 +47,13 @@ export const ViewSelector = ({
       
       {/* Show charts toggle - only visible in card view */}
       {currentView === "cards" && onShowAllChartsChange && (
-        <div className="flex items-center gap-2 ml-4 pl-4 border-l border-slate-600">
-          <Label htmlFor="show-all-charts" className="flex items-center gap-2 cursor-pointer text-slate-300">
-            {showAllCharts ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            <span className="text-sm">Show Charts</span>
-          </Label>
+        <div className="flex items-center gap-3 ml-auto">
+          <span className="text-sm text-slate-400">Charts</span>
           <Switch
             id="show-all-charts"
             checked={showAllCharts}
             onCheckedChange={onShowAllChartsChange}
-            className="data-[state=checked]:bg-dashboard-accent1"
+            className="data-[state=checked]:bg-dashboard-accent1 data-[state=unchecked]:bg-slate-600"
           />
         </div>
       )}
