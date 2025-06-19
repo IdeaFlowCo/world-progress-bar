@@ -14,7 +14,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { ProgressIndicator } from "@/types/dashboard";
-import { formatNumberWithSI } from "@/lib/utils";
+import { formatNumberWithSI, formatValueWithDisplayPrecision } from "@/lib/utils";
 
 // Helper function to generate sensible year ticks for the XAxis
 const getYearTicks = (
@@ -77,25 +77,8 @@ export const IndicatorChart = ({
     // Determine if this is a percentage-based indicator
     const isPercentage = indicator.unit === "%" || indicator.unit === "percent";
 
-    // Helper function to format values based on displayPrecision
-    const formatValueWithDisplayPrecision = (
-        value: number,
-        precision?: number
-    ): string => {
-        if (typeof precision === "number") {
-            return value.toFixed(precision);
-        }
-        // Default formatting if precision is not specified
-        // For whole numbers, show no decimals. For floats, default to 2 decimals.
-        return Number.isInteger(value) ? String(value) : value.toFixed(2);
-    };
-
     // Check if log scale should be used
-    const useLogScale =
-        indicator.id === "world-energy-production" ||
-        indicator.id === "top-supercomputer-flops" ||
-        indicator.id === "cost-per-flop" ||
-        indicator.id === "ai-training-compute"; // Added ai-training-compute
+    const useLogScale = indicator.useLogScale === true;
 
     // Set domain max value - cap at 100 if it's a percentage
     const getYAxisDomain = () => {
@@ -105,7 +88,7 @@ export const IndicatorChart = ({
             indicator.id !== "us-inflation-rate" &&
             indicator.id !== "global-inflation-rate"
         ) {
-            return [0, 100];
+            return [0, CHART_CONSTANTS.PERCENTAGE_MAX];
         }
 
         // For other values, calculate a reasonable upper bound

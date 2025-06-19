@@ -83,3 +83,15 @@ export function formatNumberWithSI(
     const formattedBaseValue = parseFloat(fixedValue).toString();
     return `${formattedBaseValue} ${unit}`;
 }
+
+export function formatValueWithDisplayPrecision(
+    value: number,
+    precision?: number
+): string {
+    if (typeof precision === "number") {
+        return value.toFixed(precision);
+    }
+    // Default formatting if precision is not specified
+    // For whole numbers, show no decimals. For floats, default to 2 decimals.
+    return Number.isInteger(value) ? String(value) : value.toFixed(2);
+}

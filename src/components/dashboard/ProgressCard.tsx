@@ -23,7 +23,7 @@ import {
 import { ProgressIndicator } from "@/types/dashboard";
 import { EditIndicatorModal } from "./EditIndicatorModal";
 import { IndicatorChart } from "./IndicatorChart";
-import { formatNumberWithSI } from "@/lib/utils";
+import { formatNumberWithSI, formatValueWithDisplayPrecision } from "@/lib/utils";
 
 interface ProgressCardProps {
     indicator: ProgressIndicator;
@@ -39,30 +39,9 @@ export const ProgressCard = ({
     const [showChart, setShowChart] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
-    // Helper function to format values based on displayPrecision
-    const formatValueWithDisplayPrecision = (
-        value: number,
-        precision?: number
-    ): string => {
-        if (typeof precision === "number") {
-            return value.toFixed(precision);
-        }
-        // Default formatting if precision is not specified
-        return Number.isInteger(value) ? String(value) : value.toFixed(2);
-    };
-
     // Determine if this indicator is measuring something where lower values are better
     const isLowerBetter = () => {
-        return (
-            indicator.name.toLowerCase().includes("poverty") ||
-            indicator.name.toLowerCase().includes("mortality") ||
-            // Add other indicators where lower is better
-            indicator.id === "global-temperature-change" ||
-            indicator.id === "global-aqi-pm25" ||
-            indicator.id === "ecological-footprint" ||
-            indicator.id === "global-obesity-overweight" ||
-            indicator.id === "gender-inequality-index" // Added GII
-        );
+        return indicator.invertedScale === true;
     };
 
     // Calculate progress percentage based on the indicator's target

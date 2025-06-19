@@ -1,5 +1,5 @@
 // src/hooks/useDashboard.tsx
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import {
     ProgressIndicator,
@@ -105,16 +105,18 @@ export function useDashboard() {
     }, []);
 
     // Filter indicators based on category and search query
-    const filteredIndicators = indicators.filter((indicator) => {
-        const matchesCategory =
-            categoryFilter === "All" || indicator.category === categoryFilter;
-        const matchesSearch =
-            indicator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            indicator.description
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
+    const filteredIndicators = useMemo(() => {
+        return indicators.filter((indicator) => {
+            const matchesCategory =
+                categoryFilter === "All" || indicator.category === categoryFilter;
+            const matchesSearch =
+                indicator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                indicator.description
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            return matchesCategory && matchesSearch;
+        });
+    }, [indicators, categoryFilter, searchQuery]);
 
     return {
         indicators: filteredIndicators,

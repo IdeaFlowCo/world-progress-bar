@@ -41,6 +41,7 @@ const costPerFlopIndicator: ProgressIndicator = {
     },
     historical: costPerFlopHistorical,
     color: "#FF5722",
+    useLogScale: true,
 };
 
 const aiTrainingComputeHistorical: { year: number; value: number }[] = [
@@ -122,6 +123,7 @@ const aiTrainingComputeIndicator: ProgressIndicator = {
     },
     historical: aiTrainingComputeHistorical,
     color: "#9C27B0",
+    useLogScale: true,
 };
 
 const solarCostHistorical: { year: number; value: number }[] = [
@@ -428,6 +430,7 @@ const genderInequalityIndexIndicator: ProgressIndicator = {
     },
     historical: genderInequalityIndexHistorical,
     color: "#E91E63",
+    invertedScale: true,
 };
 
 const globalHappinessIndicator: ProgressIndicator = {
@@ -545,6 +548,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2022, value: 8.5 }, // World Bank estimate for 2022
         ],
         color: "#F59E0B",
+        invertedScale: true,
     },
     {
         id: "internet-access",
@@ -595,6 +599,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2022, value: 37.0 }, // UN IGME 2022 data
         ],
         color: "#EF4444",
+        invertedScale: true,
     },
     {
         id: "co2-emissions",
@@ -696,6 +701,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2022, value: 1.9e13 }, // ~600 EJ/yr (IEA Key World Energy Statistics 2023)
         ],
         color: "#FFC107",
+        useLogScale: true,
     },
     {
         id: "global-temperature-change",
@@ -721,6 +727,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2023, value: 1.48 },
         ],
         color: "#F44336",
+        invertedScale: true,
     },
     {
         id: "global-aqi-pm25",
@@ -745,6 +752,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2019, value: 28.7 }, // SoGA data
         ],
         color: "#9E9E9E",
+        invertedScale: true,
     },
     {
         id: "safely-managed-drinking-water",
@@ -795,6 +803,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2023, value: 1.75 }, // Based on Earth Overshoot Day 2023 calculation
         ],
         color: "#795548",
+        invertedScale: true,
     },
     {
         id: "safely-managed-sanitation",
@@ -847,6 +856,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2022, value: 43.0 },
         ],
         color: "#FF9800",
+        invertedScale: true,
     },
     {
         id: "top-supercomputer-flops",
@@ -878,6 +888,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2023, value: 1.194e18 },
         ],
         color: "#673AB7",
+        useLogScale: true,
     },
     genderInequalityIndexIndicator,
     globalHappinessIndicator,
