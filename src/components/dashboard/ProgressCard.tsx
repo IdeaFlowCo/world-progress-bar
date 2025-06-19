@@ -29,15 +29,20 @@ interface ProgressCardProps {
     indicator: ProgressIndicator;
     onUpdate: (indicator: ProgressIndicator) => void;
     onDelete: (id: string) => void;
+    forceShowChart?: boolean;
 }
 
 export const ProgressCard = ({
     indicator,
     onUpdate,
     onDelete,
+    forceShowChart = false,
 }: ProgressCardProps) => {
     const [showChart, setShowChart] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    
+    // Use forceShowChart to override local state
+    const shouldShowChart = forceShowChart || showChart;
 
     // Determine if this indicator is measuring something where lower values are better
     const isLowerBetter = () => {
@@ -259,7 +264,7 @@ export const ProgressCard = ({
 
     // Conditionally shorten the description for Global GDP when chart is hidden
     let displayDescription = indicator.description;
-    if (indicator.id === "global-gdp" && !showChart) {
+    if (indicator.id === "global-gdp" && !shouldShowChart) {
         displayDescription =
             "Gross domestic product (GDP) is a measure of the total value added from the production of goods and services globally each year.";
     }
@@ -294,7 +299,7 @@ export const ProgressCard = ({
                                     onClick={() => setShowChart(!showChart)}
                                 >
                                     <BarChart className="mr-2 h-4 w-4" />
-                                    {showChart ? "Hide Chart" : "Show Chart"}
+                                    {shouldShowChart ? "Hide Chart" : "Show Chart"}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => setShowEditModal(true)}
@@ -352,7 +357,7 @@ export const ProgressCard = ({
                             </div>
                         )}
 
-                    {showChart && (
+                    {shouldShowChart && (
                         <div className="mt-4 h-[160px]">
                             <IndicatorChart indicator={indicator} />
                         </div>

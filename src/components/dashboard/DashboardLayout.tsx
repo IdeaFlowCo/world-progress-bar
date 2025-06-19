@@ -30,6 +30,7 @@ export const DashboardLayout = () => {
     } = useDashboard();
 
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [showAllCharts, setShowAllCharts] = useState(false);
 
     const renderContent = () => {
         if (indicators.length === 0) {
@@ -61,6 +62,7 @@ export const DashboardLayout = () => {
                                 indicator={indicator}
                                 onUpdate={updateIndicator}
                                 onDelete={removeIndicator}
+                                forceShowChart={showAllCharts}
                             />
                         ))}
                     </div>
@@ -185,6 +187,8 @@ export const DashboardLayout = () => {
                 <ViewSelector
                     currentView={view}
                     onViewChange={(newView) => setView(newView)}
+                    showAllCharts={showAllCharts}
+                    onShowAllChartsChange={setShowAllCharts}
                 />
 
                 {renderContent()}
