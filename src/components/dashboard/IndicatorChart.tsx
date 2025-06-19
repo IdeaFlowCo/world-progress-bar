@@ -77,6 +77,19 @@ export const IndicatorChart = ({
     // Determine if this is a percentage-based indicator
     const isPercentage = indicator.unit === "%" || indicator.unit === "percent";
 
+    // Helper function to format values based on displayPrecision
+    const formatValueWithDisplayPrecision = (
+        value: number,
+        precision?: number
+    ): string => {
+        if (typeof precision === "number") {
+            return value.toFixed(precision);
+        }
+        // Default formatting if precision is not specified
+        // For whole numbers, show no decimals. For floats, default to 2 decimals.
+        return Number.isInteger(value) ? String(value) : value.toFixed(2);
+    };
+
     // Check if log scale should be used
     const useLogScale =
         indicator.id === "world-energy-production" ||
@@ -86,8 +99,12 @@ export const IndicatorChart = ({
 
     // Set domain max value - cap at 100 if it's a percentage
     const getYAxisDomain = () => {
-        // For percentage values, cap at 100
-        if (isPercentage) {
+        // For percentage values, cap at 100, unless it's an inflation metric
+        if (
+            isPercentage &&
+            indicator.id !== "us-inflation-rate" &&
+            indicator.id !== "global-inflation-rate"
+        ) {
             return [0, 100];
         }
 
@@ -133,22 +150,39 @@ export const IndicatorChart = ({
             // Use SI formatter for large numbers on log axis
             return formatNumberWithSI(value, indicator.unit, 0); // Use 0 precision for cleaner axis
         }
+        const formattedValue = formatValueWithDisplayPrecision(
+            value,
+            indicator.displayPrecision
+        );
         if (isPercentage) {
-            return `${value}%`;
+            return `${formattedValue}%`;
         }
-        return String(value);
+        return formattedValue;
     };
 
     // Formatter for Tooltip
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts tooltip props type is complex
     const tooltipFormatter = (value: number, name: string, props: any) => {
-        // Use SI formatter for large numbers in tooltip
-        // TODO: Improve typing for props if possible, e.g., props: { payload?: Record<string, any> }
+        // Use SI formatter for large numbers in tooltip for specific units
         if (indicator.unit === "Watts" || indicator.unit === "FLOPS") {
-            return [formatNumberWithSI(value, indicator.unit, 2), "Value"]; // Show unit in tooltip
+            // Using displayPrecision for SI formatter if available, else default to 2
+            const precisionForSI =
+                typeof indicator.displayPrecision === "number"
+                    ? indicator.displayPrecision
+                    : 2;
+            return [
+                formatNumberWithSI(value, indicator.unit, precisionForSI),
+                "Value",
+            ];
         }
+
+        const formattedValue = formatValueWithDisplayPrecision(
+            value,
+            indicator.displayPrecision
+        );
+
         // Default formatting
-        return [`${value}${isPercentage ? "%" : ""}`, "Value"];
+        return [`${formattedValue}${isPercentage ? "%" : ""}`, "Value"];
     };
 
     // Calculate ticks for the year axis

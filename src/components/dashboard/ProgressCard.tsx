@@ -39,6 +39,18 @@ export const ProgressCard = ({
     const [showChart, setShowChart] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
+    // Helper function to format values based on displayPrecision
+    const formatValueWithDisplayPrecision = (
+        value: number,
+        precision?: number
+    ): string => {
+        if (typeof precision === "number") {
+            return value.toFixed(precision);
+        }
+        // Default formatting if precision is not specified
+        return Number.isInteger(value) ? String(value) : value.toFixed(2);
+    };
+
     // Determine if this indicator is measuring something where lower values are better
     const isLowerBetter = () => {
         return (
@@ -210,44 +222,60 @@ export const ProgressCard = ({
     let displayValue: string;
     let displayUnit: string = indicator.unit; // Default to indicator unit
 
+    // Use displayPrecision if available, otherwise fall back to specific logic or SI formatting
     if (indicator.id === "global-population") {
-        // Format population with commas
+        // Format population with commas - displayPrecision not directly applicable here
         displayValue = indicator.value.toLocaleString();
-        displayUnit = indicator.unit; // Keep original unit (e.g., "people")
+        displayUnit = indicator.unit;
     } else if (indicator.id === "global-gdp") {
-        // Format as $X.Y Trillion (using SI prefix T)
-        const formattedSI = formatNumberWithSI(indicator.value, "USD"); // Use 'USD' unit hint
-        const valueParts = formattedSI.split(/\s+/); // e.g., ["90.1", "T"]
-        displayValue = `$${valueParts[0]}`; // Add $ prefix
-        displayUnit = valueParts.length > 1 ? valueParts[1] : ""; // Keep SI prefix (T for Trillion)
-    } else if (indicator.id === "solar-cost-per-watt") {
-        // Format as $X.YZ / Watt
-        displayValue = `$${indicator.value.toFixed(2)}`; // Add $ prefix and format to 2 decimals
-        displayUnit = "/ Watt"; // Set unit explicitly
-    } else if (indicator.unit === "%") {
-        displayValue = indicator.value.toFixed(1); // Format percentage to 1 decimal place
-        displayUnit = "%"; // Ensure unit is just '%'
-    } else if (indicator.id === "global-literacy") {
-        // Format literacy rate to 2 decimal places
-        displayValue = indicator.value.toFixed(2);
-        displayUnit = "%"; // Ensure unit is just '%'
+        // Uses formatNumberWithSI, displayPrecision could apply to the number part if needed
+        // Current formatNumberWithSI for this doesn't take precision, it aims for e.g. "90.1 T"
+        const formattedSI = formatNumberWithSI(indicator.value, "USD");
+        const valueParts = formattedSI.split(/\s+/);
+        displayValue = `$${valueParts[0]}`;
+        displayUnit = valueParts.length > 1 ? valueParts[1] : "";
     } else if (indicator.unit === "Watts" || indicator.unit === "FLOPS") {
-        const formattedSI = formatNumberWithSI(indicator.value, indicator.unit);
+        // formatNumberWithSI handles these well; precision is passed to it.
+        const precisionForSI =
+            typeof indicator.displayPrecision === "number"
+                ? indicator.displayPrecision
+                : 2;
+        const formattedSI = formatNumberWithSI(
+            indicator.value,
+            indicator.unit,
+            precisionForSI
+        );
         const valueParts = formattedSI.split(/\s+/);
         displayValue = valueParts[0];
         displayUnit =
             valueParts.length > 1 ? valueParts.slice(1).join(" ") : "";
-    } else if (indicator.id === "gender-inequality-index") {
-        // Format GII to 3 decimal places
-        displayValue = indicator.value.toFixed(3);
-        displayUnit = indicator.unit; // Keep the original unit ("Index Score")
     } else {
-        // For other units, use SI formatting for better precision and readability
-        const formattedSI = formatNumberWithSI(indicator.value, indicator.unit);
-        const valueParts = formattedSI.split(/\s+/);
-        displayValue = valueParts[0];
-        displayUnit =
-            valueParts.length > 1 ? valueParts.slice(1).join(" ") : "";
+        // General case: Use displayPrecision first, then default formatting within the helper
+        displayValue = formatValueWithDisplayPrecision(
+            indicator.value,
+            indicator.displayPrecision
+        );
+        // Append unit if it's not already part of displayValue (e.g. for %)
+        if (indicator.unit === "%") {
+            displayUnit = "%"; // Ensure unit is just %
+        } else {
+            // For other cases, the unit is separate
+            displayUnit = indicator.unit;
+        }
+        // Special handling for certain units to ensure correct display even after precision formatting
+        if (indicator.id === "solar-cost-per-watt") {
+            displayValue = `$${displayValue}`; // Add $ prefix
+            displayUnit = "/ Watt"; // Set unit explicitly (original logic had .toFixed(2))
+        } else if (indicator.id === "cost-per-flop") {
+            // displayPrecision is already applied. Unit is $/FLOP
+            // This is more about ensuring unit is correctly displayed if not %.
+            displayUnit = indicator.unit; // Should be $/FLOP
+        }
+
+        // If the unit is already part of displayValue (e.g. from formatNumberWithSI if it were used here for non-Watts/FLOPS)
+        // or if the unit is simple like '%', we might not need to append it again.
+        // However, the current structure with a separate displayUnit is generally fine.
+        // The main goal is to ensure displayValue respects displayPrecision.
     }
 
     // Conditionally shorten the description for Global GDP when chart is hidden

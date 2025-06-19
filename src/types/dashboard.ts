@@ -24,6 +24,7 @@ export interface ProgressIndicator {
     value: number;
     target?: number;
     unit: string;
+    displayPrecision?: number;
     chartType: ChartType;
     source: IndicatorSource;
     historical: { year: number; value: number }[];
