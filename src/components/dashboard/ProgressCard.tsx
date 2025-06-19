@@ -272,7 +272,7 @@ export const ProgressCard = ({
     return (
         <>
             <Card
-                className={`glass-morphism overflow-hidden transition-all duration-300 flex flex-col h-full`}
+                className={`glass-morphism overflow-hidden transition-all duration-300 flex flex-col h-full min-h-[320px]`}
             >
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
@@ -319,15 +319,13 @@ export const ProgressCard = ({
                     </div>
                 </CardHeader>
                 <CardContent className="pb-3 flex-1 flex flex-col">
-                    {/* Description section - grows to fill available space */}
-                    <div className="flex-1">
-                        <p className="text-sm text-slate-300 mb-4">
-                            {displayDescription}
-                        </p>
-                    </div>
+                    {/* Description with minimum space after */}
+                    <p className="text-sm text-slate-300 mb-6">
+                        {displayDescription}
+                    </p>
 
-                    {/* Bottom section - fixed at bottom */}
-                    <div className="mt-auto">
+                    {/* Bottom section with minimal push */}
+                    <div className="mt-auto pt-2">
                         <div className="flex items-end justify-between mb-2">
                             <div>
                                 <span
