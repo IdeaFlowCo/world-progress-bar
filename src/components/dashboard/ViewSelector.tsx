@@ -25,8 +25,8 @@ export const ViewSelector = ({
   ];
 
   return (
-    <div className="flex items-center gap-4 mb-6">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-2">
         {views.map((view) => (
           <Button
             key={view.id}
@@ -47,7 +47,7 @@ export const ViewSelector = ({
       
       {/* Show charts toggle - only visible in card view */}
       {currentView === "cards" && onShowAllChartsChange && (
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center gap-3 sm:ml-auto">
           <span className="text-sm text-slate-400">Charts</span>
           <Switch
             id="show-all-charts"

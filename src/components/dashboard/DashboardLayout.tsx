@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardLayout.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProgressCard } from "./ProgressCard";
 import { Sidebar } from "./Sidebar";
 import { ViewSelector } from "./ViewSelector";
@@ -29,8 +29,23 @@ export const DashboardLayout = () => {
         removeIndicator,
     } = useDashboard();
 
+    // Check if mobile on mount and set sidebar accordingly
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [showAllCharts, setShowAllCharts] = useState(false);
+    
+    useEffect(() => {
+        // Check if mobile device (viewport width < 768px)
+        const checkMobile = () => {
+            setSidebarCollapsed(window.innerWidth < 768);
+        };
+        
+        // Check on mount
+        checkMobile();
+        
+        // Optional: Add resize listener to handle orientation changes
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const renderContent = () => {
         if (indicators.length === 0) {
@@ -173,13 +188,13 @@ export const DashboardLayout = () => {
             <main
                 className={`transition-all duration-300 ${
                     sidebarCollapsed ? "ml-16" : "ml-64"
-                } p-8`}
+                } p-4 sm:p-6 md:p-8`}
             >
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white">
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
                         World Progress Bar
                     </h1>
-                    <p className="text-slate-400 mt-2">
+                    <p className="text-sm sm:text-base text-slate-400 mt-1 sm:mt-2">
                         Track and analyze key global development indicators
                     </p>
                 </div>
