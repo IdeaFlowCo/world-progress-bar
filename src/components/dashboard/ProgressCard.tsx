@@ -272,7 +272,7 @@ export const ProgressCard = ({
     return (
         <>
             <Card
-                className={`glass-morphism overflow-hidden transition-all duration-300 flex flex-col h-full min-h-[320px]`}
+                className={`glass-morphism overflow-hidden transition-all duration-300 flex flex-col h-full min-h-[320px] w-full`}
             >
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">

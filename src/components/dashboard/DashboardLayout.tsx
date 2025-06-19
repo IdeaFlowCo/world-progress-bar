@@ -55,16 +55,15 @@ export const DashboardLayout = () => {
                     (ind) => ind.id !== "global-happiness-index"
                 );
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {cardIndicators.map((indicator) => (
-                            <div key={indicator.id} className="flex">
-                                <ProgressCard
-                                    indicator={indicator}
-                                    onUpdate={updateIndicator}
-                                    onDelete={removeIndicator}
-                                    forceShowChart={showAllCharts}
-                                />
-                            </div>
+                            <ProgressCard
+                                key={indicator.id}
+                                indicator={indicator}
+                                onUpdate={updateIndicator}
+                                onDelete={removeIndicator}
+                                forceShowChart={showAllCharts}
+                            />
                         ))}
                     </div>
                 );
