@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { ProgressIndicator } from "@/types/dashboard";
 import { formatNumberWithSI, formatValueWithDisplayPrecision } from "@/lib/utils";
+import { CHART_CONSTANTS } from "@/constants/dashboard";
 
 // Helper function to generate sensible year ticks for the XAxis
 const getYearTicks = (

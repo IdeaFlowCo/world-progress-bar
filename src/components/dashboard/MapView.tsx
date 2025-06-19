@@ -13,6 +13,7 @@ import { countryNameToCodeMap } from "@/data/countryMappings";
 import { MapLegend } from "./map/MapLegend";
 import { MapTooltip } from "./map/MapTooltip";
 import { MapControls } from "./map/MapControls";
+import { MAP_CONSTANTS } from "@/constants/dashboard";
 
 // --- Interfaces ---
 interface Geometry {
