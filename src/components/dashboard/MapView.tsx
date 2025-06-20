@@ -14,6 +14,8 @@ import { MapLegend } from "./map/MapLegend";
 import { MapTooltip } from "./map/MapTooltip";
 import { MapControls } from "./map/MapControls";
 import { MAP_CONSTANTS } from "@/constants/dashboard";
+import { Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // --- Interfaces ---
 interface Geometry {
@@ -112,6 +114,7 @@ export const MapView = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showLegend, setShowLegend] = useState(() => window.innerWidth >= 640);
 
     const currentMapData: MapDisplayData = mapIndexData[selectedIndex];
 
@@ -176,7 +179,7 @@ export const MapView = () => {
 
     return (
         // Main container: flex column, relative for tooltip positioning
-        <div className="w-full h-[70vh] border border-slate-700 rounded-lg overflow-hidden flex flex-col relative" aria-label={`World map showing ${currentMapData.label} data`}>
+        <div className="w-full h-[calc(100vh-200px)] sm:h-[70vh] border border-slate-700 rounded-lg overflow-hidden flex flex-col relative" aria-label={`World map showing ${currentMapData.label} data`}>
             {/* Header: Title, Subtitle, Search, and Selector - Prevent shrinking */}
             <MapControls
                 title={currentMapData.title}
@@ -190,12 +193,25 @@ export const MapView = () => {
                 ]}
             />
 
-            {/* Legend */}
-            <MapLegend 
-                items={currentMapData.legend}
-                unit={currentMapData.unit}
-                label={currentMapData.label}
-            />
+            {/* Legend with toggle button on mobile */}
+            {showLegend && (
+                <MapLegend 
+                    items={currentMapData.legend}
+                    unit={currentMapData.unit}
+                    label={currentMapData.label}
+                />
+            )}
+            
+            {/* Legend toggle button - visible on mobile */}
+            <Button
+                variant="ghost"
+                size="icon"
+                className="sm:hidden absolute bottom-4 right-4 z-20 bg-slate-900/90 hover:bg-slate-800/90"
+                onClick={() => setShowLegend(!showLegend)}
+                aria-label={showLegend ? "Hide legend" : "Show legend"}
+            >
+                <Info className="h-4 w-4" />
+            </Button>
 
             {/* Map Container: Grow to fill space, relative for tooltip */}
             <div className="flex-grow relative">

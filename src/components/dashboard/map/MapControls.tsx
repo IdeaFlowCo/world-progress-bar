@@ -22,14 +22,14 @@ export const MapControls = ({
     indexOptions,
 }: MapControlsProps) => {
     return (
-        <div className="p-4 border-b border-slate-700 bg-slate-900/50 flex justify-between items-center flex-shrink-0">
+        <div className="p-3 sm:p-4 border-b border-slate-700 bg-slate-900/50 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0 sm:items-center flex-shrink-0">
             {/* Left section: Title, Subtitle, and Search */}
-            <div>
-                <h3 className="text-lg font-semibold text-slate-100">
+            <div className="w-full sm:w-auto">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-100">
                     Global Index Map
                 </h3>
-                <p className="text-sm text-slate-400 mt-1">{title}</p>
-                <div className="mt-2 relative w-64">
+                <p className="text-xs sm:text-sm text-slate-400 mt-0.5 sm:mt-1">{title}</p>
+                <div className="mt-2 relative w-full sm:w-64">
                     <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
                         type="text"
@@ -56,7 +56,7 @@ export const MapControls = ({
             <RadioGroup
                 value={selectedIndex}
                 onValueChange={onIndexChange}
-                className="flex items-center space-x-4"
+                className="flex items-center space-x-3 sm:space-x-4"
                 aria-label="Select index type"
             >
                 {indexOptions.map((option) => (

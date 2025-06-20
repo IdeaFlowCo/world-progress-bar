@@ -184,7 +184,7 @@ const solarCostIndicator: ProgressIndicator = {
     description: "Price of solar photovoltaic modules per watt (in 2023 USD).",
     category: "Environment",
     value: solarCostHistorical[solarCostHistorical.length - 1].value,
-    target: 0.1,
+    target: 0.01,
     unit: "$/Watt",
     displayPrecision: 3,
     chartType: "line",
@@ -195,6 +195,7 @@ const solarCostIndicator: ProgressIndicator = {
     },
     historical: solarCostHistorical,
     color: "#FFEB3B",
+    invertedScale: true,
 };
 
 const globalGDPHistorical: { year: number; value: number }[] = [
@@ -361,7 +362,7 @@ const globalLifeExpectancyIndicator: ProgressIndicator = {
     value: globalLifeExpectancyHistorical[
         globalLifeExpectancyHistorical.length - 1
     ].value,
-    target: 85,
+    target: 100,
     unit: "years",
     displayPrecision: 1,
     chartType: "line",
@@ -1011,6 +1012,7 @@ export const staticIndicators: ProgressIndicator[] = [
         description: "Estimated global homicide rate per 100,000 population.",
         category: "Social",
         value: 6.3,
+        target: 0,
         unit: "per 100k",
         displayPrecision: 1,
         chartType: "line",
@@ -1028,6 +1030,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2021, value: 6.3 },
         ],
         color: "#607D8B",
+        invertedScale: true,
     },
     {
         id: "global-unemployment-rate",
@@ -1035,6 +1038,7 @@ export const staticIndicators: ProgressIndicator[] = [
         description: "Share of the global labor force that is unemployed.",
         category: "Economy",
         value: 5.5,
+        target: 2,
         unit: "%",
         displayPrecision: 1,
         chartType: "line",
@@ -1055,6 +1059,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2023, value: 5.5 },
         ],
         color: "#3F51B5",
+        invertedScale: true,
     },
     {
         id: "global-suicide-rate",
@@ -1062,6 +1067,7 @@ export const staticIndicators: ProgressIndicator[] = [
         description: "Age-standardised suicide deaths per 100,000 population.",
         category: "Health",
         value: 9.2,
+        target: 0,
         unit: "per 100k",
         displayPrecision: 1,
         chartType: "line",
@@ -1078,6 +1084,7 @@ export const staticIndicators: ProgressIndicator[] = [
             { year: 2019, value: 9.2 },
         ],
         color: "#9C27B0",
+        invertedScale: true,
     },
     {
         id: "us-m2-money-supply",
