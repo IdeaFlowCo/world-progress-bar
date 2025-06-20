@@ -252,8 +252,8 @@ export const ProgressCard = ({
             displayValue = `$${displayValue}`; // Add $ prefix
             displayUnit = "/ Watt"; // Set unit explicitly (original logic had .toFixed(2))
         } else if (indicator.id === "cost-per-flop") {
-            // displayPrecision is already applied. Unit is $/FLOP
-            // This is more about ensuring unit is correctly displayed if not %.
+            // Use scientific notation for very small numbers
+            displayValue = indicator.value.toExponential(2);
             displayUnit = indicator.unit; // Should be $/FLOP
         }
 
