@@ -299,11 +299,6 @@ export const MapView = () => {
                                                             setTooltipContent("");
                                                         } else {
                                                             setTooltipContent(currentTooltipText);
-                                                            // Position tooltip at top center on mobile
-                                                            setTooltipPosition({ 
-                                                                x: window.innerWidth / 2 - 100, 
-                                                                y: 20 
-                                                            });
                                                         }
                                                     }
                                                 }}
