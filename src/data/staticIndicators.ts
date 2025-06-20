@@ -581,7 +581,7 @@ export const staticIndicators: ProgressIndicator[] = [
         description: "Deaths of children under 5 years per 1,000 live births.",
         category: "Health",
         value: 37, // UN IGME 2022
-        target: 20, // SDG Target 3.2 is 25 by 2030
+        target: 0, // SDG Target 3.2 is 25 by 2030
         unit: "per 1,000",
         displayPrecision: 0,
         chartType: "line",
@@ -837,7 +837,7 @@ export const staticIndicators: ProgressIndicator[] = [
             "Percentage of adults (18+) globally who are overweight (BMI ≥ 25, includes obesity).",
         category: "Health",
         value: 43, // WHO Global Health Observatory, 2022 data for overweight (incl. obesity)
-        target: 30,
+        target: 15,
         unit: "%",
         displayPrecision: 1,
         chartType: "line",

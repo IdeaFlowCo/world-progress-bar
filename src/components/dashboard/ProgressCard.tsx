@@ -216,8 +216,9 @@ export const ProgressCard = ({
         // Current formatNumberWithSI for this doesn't take precision, it aims for e.g. "90.1 T"
         const formattedSI = formatNumberWithSI(indicator.value, "USD");
         const valueParts = formattedSI.split(/\s+/);
-        displayValue = `$${valueParts[0]}`;
-        displayUnit = valueParts.length > 1 ? valueParts[1] : "";
+        // Include the SI prefix (T for trillion) in the display value
+        displayValue = valueParts.length > 1 ? `$${valueParts[0]}${valueParts[1]}` : `$${valueParts[0]}`;
+        displayUnit = valueParts.length > 2 ? valueParts[2] : "USD";
     } else if (indicator.unit === "Watts" || indicator.unit === "FLOPS") {
         // formatNumberWithSI handles these well; precision is passed to it.
         const precisionForSI =
