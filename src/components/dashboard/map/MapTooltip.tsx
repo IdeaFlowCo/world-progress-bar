@@ -22,10 +22,10 @@ export const MapTooltip = ({ content, position, isMobile = false }: MapTooltipPr
 
     return (
         <div
-            className="absolute bg-slate-900/95 px-3 py-2 rounded shadow-lg pointer-events-none border border-slate-700 z-20"
+            className="fixed bg-slate-900/95 px-3 py-2 rounded shadow-lg pointer-events-none border border-slate-700 z-50"
             style={{
-                left: position.x + 10,
-                top: position.y - 30,
+                left: position.x + 5,
+                top: position.y - 40,
             }}
             role="tooltip"
         >
