@@ -109,6 +109,7 @@ export const MapView = () => {
         x: number;
         y: number;
     }>({ x: 0, y: 0 });
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
     const [geoData, setGeoData] = useState<GeoJsonData | null>(null);
     const [selectedIndex, setSelectedIndex] = useState<SelectedIndex>("hdi");
     const [searchQuery, setSearchQuery] = useState("");
@@ -138,6 +139,15 @@ export const MapView = () => {
         };
         
         fetchGeoData();
+    }, []);
+    
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     if (isLoading) {
@@ -218,9 +228,16 @@ export const MapView = () => {
                 {/* Wrapper div to ensure map takes full height/width of container */}
                 <div
                     className="w-full h-full"
-                    onMouseMove={(e) =>
-                        setTooltipPosition({ x: e.clientX, y: e.clientY })
-                    }
+                    onMouseMove={(e) => {
+                        if (!isMobile) {
+                            setTooltipPosition({ x: e.clientX, y: e.clientY });
+                        }
+                    }}
+                    onClick={() => {
+                        if (isMobile && tooltipContent) {
+                            setTooltipContent("");
+                        }
+                    }}
                 >
                     <ComposableMap
                         projectionConfig={{ rotate: [-10, 0, 0] }}
@@ -263,12 +280,32 @@ export const MapView = () => {
                                                 aria-label={currentTooltipText}
                                                 role="img"
                                                 onMouseEnter={() => {
-                                                    setTooltipContent(
-                                                        currentTooltipText
-                                                    );
+                                                    if (!isMobile) {
+                                                        setTooltipContent(
+                                                            currentTooltipText
+                                                        );
+                                                    }
                                                 }}
                                                 onMouseLeave={() => {
-                                                    setTooltipContent("");
+                                                    if (!isMobile) {
+                                                        setTooltipContent("");
+                                                    }
+                                                }}
+                                                onClick={(e) => {
+                                                    if (isMobile) {
+                                                        e.stopPropagation();
+                                                        // Toggle tooltip on mobile
+                                                        if (tooltipContent === currentTooltipText) {
+                                                            setTooltipContent("");
+                                                        } else {
+                                                            setTooltipContent(currentTooltipText);
+                                                            // Position tooltip at top center on mobile
+                                                            setTooltipPosition({ 
+                                                                x: window.innerWidth / 2 - 100, 
+                                                                y: 20 
+                                                            });
+                                                        }
+                                                    }
                                                 }}
                                                 style={{
                                                     default: {
@@ -315,7 +352,7 @@ export const MapView = () => {
                     </ComposableMap>
                 </div>
                 {/* Tooltip */}
-                <MapTooltip content={tooltipContent} position={tooltipPosition} />
+                <MapTooltip content={tooltipContent} position={tooltipPosition} isMobile={isMobile} />
             </div>
         </div>
     );
